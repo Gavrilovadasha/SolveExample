@@ -22,6 +22,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var answerWrongView: TextView
     private lateinit var solveExampleCountView: TextView // Добавляем переменную для счетчика SolveExamleCount
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -55,7 +56,18 @@ class MainActivity : AppCompatActivity() {
 
             // Прибавляем 1 к счетчику SolveExamleCount после каждого примера
             incrementSolveExampleCount()
+
+            val AnswerRight = findViewById<TextView>(R.id.AnswerRight)
+            val SolveExamleCount = findViewById<TextView>(R.id.SolveExamleCount)
+
+
+            // Вычисление статистики
+            val statistics = 100 * AnswerRight.text.toString().toInt() / SolveExamleCount.text.toString().toInt()
+
+            // Обновление текста в TextView для отображения статистики
+            findViewById<TextView>(R.id.Statistics).text = statistics.toString()
         }
+
     }
 
     private fun generateExample() {
@@ -113,5 +125,42 @@ class MainActivity : AppCompatActivity() {
         solveExampleCountView.text = (currentCount + 1).toString()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        // Сохраняем текущее состояние UI
+        outState.putString("OPERAND_1", operand1View.text.toString())
+        outState.putString("OPERAND_2", operand2View.text.toString())
+        outState.putString("OPERATOR", operatorView.text.toString())
+        outState.putBoolean("BTN_START_ENABLED", btnStart.isEnabled)
+        outState.putBoolean("BTN_CHECK_ENABLED", btnCheck.isEnabled)
+        outState.putString("ANSWER_RIGHT", answerRightView.text.toString())
+        outState.putString("ANSWER_WRONG", answerWrongView.text.toString())
+        outState.putInt("SOLVE_EXAMPLE_COUNT", solveExampleCountView.text.toString().toInt())
+
+        // Если есть введенный пользователем ответ, сохраняем его
+        if (edtAnswer.text.isNotEmpty()) {
+            outState.putString("EDT_ANSWER", edtAnswer.text.toString())
+        }
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+
+        // Восстановляем состояние UI
+        operand1View.text = savedInstanceState.getString("OPERAND_1")
+        operand2View.text = savedInstanceState.getString("OPERAND_2")
+        operatorView.text = savedInstanceState.getString("OPERATOR")
+        btnStart.isEnabled = savedInstanceState.getBoolean("BTN_START_ENABLED")
+        btnCheck.isEnabled = savedInstanceState.getBoolean("BTN_CHECK_ENABLED")
+        answerRightView.text = savedInstanceState.getString("ANSWER_RIGHT")
+        answerWrongView.text = savedInstanceState.getString("ANSWER_WRONG")
+        solveExampleCountView.text = savedInstanceState.getInt("SOLVE_EXAMPLE_COUNT").toString()
+
+        // Если был сохранен введенный пользователем ответ, восстанавливаем его
+        if (savedInstanceState.containsKey("EDT_ANSWER")) {
+            edtAnswer.setText(savedInstanceState.getString("EDT_ANSWER"))
+        }
+    }
 
 }
